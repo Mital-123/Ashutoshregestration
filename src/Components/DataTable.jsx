@@ -28,8 +28,8 @@ function DataTable() {
     }
     else {
       navigate('/ViewPatientDetails')
+      localStorage.setItem("ViewPatientDetails", id)
     }
-    localStorage.setItem("ViewPatientDetails", id)
   }
   const columns = [
     {
@@ -48,11 +48,18 @@ function DataTable() {
         }
       }
     }, {
-      name: "name",
+      name: "full_name",
       label: "Name",
       options: {
         filter: true,
         sort: true,
+        customBodyRender: (value, tableMeta, updateValue) => {
+          if (typeof value === 'object' && value !== null) {
+            return Object.values(value).join(" ");
+          } else {
+            return value;
+          }
+        }
 
       }
     },
@@ -98,7 +105,7 @@ function DataTable() {
     },
 
     {
-      name: "id",
+      name: "_id",
       label: "View",
       options: {
         filter: true,
@@ -114,9 +121,8 @@ function DataTable() {
 
   // //temprery
   useEffect(() => {
-    axios.get(server + 'get-patinet-info/').then(function (response) {
-      // console.log(response.data.data);
-      setState(response.data.data)
+    axios.get("http://localhost:9090/getpatient").then(function (response) {
+      setState(response.data)
     })
   }, [])
 
@@ -133,13 +139,14 @@ function DataTable() {
   return (
     <div className='container-fluid bg text-start'>
       <CacheProvider value={muiCache}>
-        <ThemeProvider theme={createTheme()}></ThemeProvider>
-        <MUIDataTable
-          title={<CustomTableTitle />}
-          data={State}
-          columns={columns}
-          options={options}
-        />
+        <ThemeProvider theme={createTheme()} children>
+          <MUIDataTable
+            title={<CustomTableTitle />}
+            data={State}
+            columns={columns}
+            options={options}
+          />
+        </ThemeProvider>
       </CacheProvider>
 
 
